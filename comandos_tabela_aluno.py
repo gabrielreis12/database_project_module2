@@ -62,7 +62,7 @@ def atualizar_CPF_aluno(matricula_id, novo_CPF_aluno):
     # aqui, quis adicionar uma camada de segurança para o BD, no sentido de que normalmente não se muda o dado CPF, mas, definitivamente é uma função que precisa existir
     if confirmando_se_quer_mudar_o_CPF == 'A':
 
-        con = sqlite3.connect("escola.db")
+        con = sqlite3.connect("escola.db",timeout=10)
         cur = con.cursor()
         
         # Ativamos a checagem de Chave Estrangeira (obrigatório no SQLite)
@@ -80,13 +80,13 @@ def atualizar_CPF_aluno(matricula_id, novo_CPF_aluno):
         else:
             con.commit()
             print("CPF do aluno atualizado com sucesso!")
-                
+        cur.close()       
         con.close()
     else:
         print('Obrigado por confirmar!')
 
-def inserir_aluno(matricula_id, Nome, CPF, DOB, nome_pai, nome_mae, id_curso):
-    con = sqlite3.connect("escola.db")
+def inserir_aluno(matricula_id, nome_curso, cpf_curso, dob_curso, nome_pai_curso, nome_mae_curso, id_curso):
+    con = sqlite3.connect("escola.db",timeout=10)
     cur = con.cursor()
         
     # Ativamos a checagem de Chave Estrangeira (obrigatório no SQLite)
@@ -96,11 +96,15 @@ def inserir_aluno(matricula_id, Nome, CPF, DOB, nome_pai, nome_mae, id_curso):
         cur.execute("""
             INSERT INTO Aluno 
             VALUES (?,?,?,?,?,?,?) 
-            WHERE matricula_ID = ?
-            """, (matricula_id, Nome, CPF, DOB, nome_pai, nome_mae, id_curso))
-
+            """, (matricula_id, nome_curso, cpf_curso, dob_curso, nome_pai_curso, nome_mae_curso, id_curso))
+        con.commit()
+        print('Salvo com sucesso!')
+        
     except sqlite3.IntegrityError as erro:
     # Se cair aqui, ou a matrícula já existe, ou o ID do curso é inválido!
-        print("Erro ao inserir aluno!")
+        print("Erro ao inserir aluno! (funcao inserir aluno)")
         print(f"Detalhe: Verifique se a matrícula {matricula_id} já existe ou se o curso {id_curso} é válido.")
         print(f"Aviso do banco de dados: {erro}")
+    finally:
+        cur.close()
+        con.close()
