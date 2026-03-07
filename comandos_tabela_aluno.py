@@ -6,31 +6,38 @@ import criacao_do_banco
 
 # pensei em utilizar o kwargs** para deixar o código mais flexível na mudança de informações do banco
 
-def UpdateAttribute(TableName, AttributeType, NewAttributeValue, EntityID):
 
+def UpdateAttribute(): #AttributeType, NewAttributeValue, EntityID):
+
+    TableName = input('Digite o nome da tabela: ')
+    ID_AttributteName = input('Qual o nome do atributo de ID? ')
+    AttributeName = input('Digite o atributo da tabela {TableName} escolhido: ')
+    NewAttributeValue = input("Digite qual o valor do atributo que você quer atualizar: ")
+    Row_ID = input('Qual o ID do usuário que você quer mudar? ')
+    #EntityID = input("Digite o ID da entidade (Nome da Tabela): ")
+    
     con = sqlite3.connect("escola.db",timeout=10)
     cur = con.cursor()
-    
     # Ativamos a checagem de Chave Estrangeira (obrigatório no SQLite)
     cur.execute("PRAGMA foreign_keys = ON;")
 
-    # utilizando duas variaveis como condicional para que os valores dos parâmetros da funcao atualizar_atributo sejam apenas os reais nomes dos atributos e das tabelas e não um comando em SQL que consulte dados, ou exclua os dados do BD
-    VariableForCondition1 = AttributeType in criacao_do_banco.possiveis_valores_atributos
+    VariableForCondition1 = AttributeName in criacao_do_banco.possiveis_valores_atributos
     VariableForCondition2 = TableName in criacao_do_banco.possiveis_valores_tabelas
-    
-    if VariableForCondition1 and VariableForCondition2:
 
-        # o bloco try/except existe para previnir a procura de um ID inexistente nesse caso
-        try:
-            cur.execute(f"UPDATE {TableName} SET {AttributeType} = ? WHERE matricula_ID = ?", (NewAttributeValue, EntityID))
+    if VariableForCondition1 and VariableForCondition2:
+        cur.execute(f"UPDATE {TableName} SET {AttributeName} = ? WHERE {ID_AttributteName} = ?", (NewAttributeValue, Row_ID))
+        if cur.rowcount == 0:
+            print(f"Erro: Nenhum/Nenhuma {TableName} encontrado com o ID num.: {Row_ID} informado.")
+        else:
+            con.commit()
+            print("Dado atualizado com sucesso!")
+        
+''' try:
+
+            cur.execute(query, ValuesOfKwargsDict)
+            print(f"Sucesso! Dados inseridos na tabela {TableName} (ID gerado: {cur.lastrowid})")
             
             # O rowcount nos diz quantas linhas o UPDATE afetou
-            if cur.rowcount == 0:
-                print(f"Erro: Nenhum/Nenhuma {TableName} encontrado com o ID num.: {EntityID} informado.")
-            else:
-                con.commit()
-                print("Dado atualizado com sucesso!")
-                
         except sqlite3.IntegrityError:
             # Se tentar colocar um ID_curso que não existe na tabela Curso, cai aqui!
             print(f"Erro: A entidade {TableName} com {EntityID} não existe no sistema.")
@@ -39,7 +46,7 @@ def UpdateAttribute(TableName, AttributeType, NewAttributeValue, EntityID):
             con.close()
     
     else:
-        print('Perigo! Risco de vulnerabilidade!')
+        print('Perigo! Risco de vulnerabilidade!')'''
 
 def FillingDictOfColumnsAndValues(TableName):
 
@@ -81,10 +88,10 @@ def InsertEntity(TableName,**kwargs):
         raise ValueError('Nenhum dado inserido para o comando INSERT')
 
     ColumnsJoinForSQLQuery = ", ".join(kwargs.keys())
-    PlaceholderString = ", ".join(["?"] * len(kwargs))
+    PlaceHolderString = ", ".join(["?"] * len(kwargs))
     ValuesOfKwargsDict = tuple(kwargs.values())
 
-    query = query = f"INSERT INTO {TableName} ({ColumnsJoinForSQLQuery}) VALUES ({PlaceholderString})"
+    query = f"INSERT INTO {TableName} ({ColumnsJoinForSQLQuery}) VALUES ({PlaceHolderString})"
 
     con = sqlite3.connect("escola.db",timeout=10)
     cur = con.cursor()
@@ -103,7 +110,7 @@ def InsertEntity(TableName,**kwargs):
 def ExecuteCLI_insert():
 
     print("\n--- Novo Cadastro ---")
-    TableName = input("Digite o nome da Tabela para inserção:\n Opções: 'Aluno', 'Contrato_de_Trabalho', 'Curso', 'Leciona', 'Professor', 'Prontuario_Academico'").strip()
+    TableName = input("Digite o nome da Tabela para inserção: (Opções: 'Aluno', 'Contrato_de_Trabalho', 'Curso', 'Leciona', 'Professor', 'Prontuario_Academico': ").strip()
 
     if TableName not in criacao_do_banco.possiveis_valores_tabelas:
         raise ValueError('[!] Erro: A tabela "{TableName}" é inválida. Nenhum dado inserido para o comando INSERT')
