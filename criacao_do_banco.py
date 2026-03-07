@@ -1,5 +1,9 @@
 import sqlite3
 
+# melhorar nome dos atributos e em seguida corrigir quaisquer inconformidades
+possiveis_valores_atributos = ['matricula_ID', 'Nome', 'CPF', 'DOB', 'nomePai', 'nomeMae', 'ID_curso', 'nome_curso', 'turno', 'ID_matricula', 'nome', 'departamento','nivel_de_formacao','ID_prontuario','data_de_matricula', 'Situacao', 'matricula_ID_aluno']
+possiveis_valores_tabelas = ['Aluno','Curso','Leciona','Professor','Prontuario_Academico','Contrato_de_Trabalho']
+
 def criar_tabelas():
     con = sqlite3.connect("escola.db") # criação do banco de dados
     cur = con.cursor() # leva os comandos do SQL do python para dentro do banco de dados
@@ -21,14 +25,14 @@ def criar_tabelas():
 
         -- 2º Passo: Tabelas Dependentes Diretas
         CREATE TABLE IF NOT EXISTS Aluno (
-            matricula_ID INT PRIMARY KEY,
-            Nome VARCHAR(100),
-            CPF VARCHAR(14),
-            DoB DATE,
-            nomePai VARCHAR(100),
-            nomeMae VARCHAR(100),
-            ID_curso INT,
-            FOREIGN KEY(ID_curso) REFERENCES Curso(ID_curso)
+            matricula_ID INTEGER PRIMARY KEY,  -- Mudei de INT para INTEGER
+            Nome         VARCHAR (100),
+            CPF          VARCHAR (14),
+            DOB          DATE,
+            nomePai      VARCHAR (100),
+            nomeMae      VARCHAR (100),
+            ID_curso     INT,
+            FOREIGN KEY (ID_curso) REFERENCES Curso (ID_curso) 
         );
 
         CREATE TABLE IF NOT EXISTS Contrato_de_Trabalho (

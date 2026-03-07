@@ -1,6 +1,13 @@
 import criacao_do_banco
 import comandos_tabela_aluno
+import sqlite3
 
-comandos_tabela_aluno.inserir_aluno(12345,'Gabriel Reis', '07260734582', 2004-01-12, 'Adriano Silva Reis', 'Débora de Jesus Reis', 1)
+con = sqlite3.connect("escola.db") # criação do banco de dados
+cur = con.cursor()
 
-# para fazer esse teste preciso criar um curso. git
+comandos_tabela_aluno.ExecuteCLI_insert()
+
+# coisas feitas ate entao
+# implementei limite de entradas na função de INSERT atributtes
+# configurei autoincrement na tabela Aluno (checar se o ID das outras tabelas possui AUTOINCREMENT)
+# configurei a função de INSERT e de UPDATE
