@@ -1,12 +1,6 @@
 import sqlite3
 import criacao_do_banco
 
-# d    IterableOfTablesNames = ", ".join(args)
-
-
-# pensei em utilizar o kwargs** para deixar o código mais flexível na mudança de informações do banco
-
-
 def UpdateAttribute(): 
 
     TableName = input('Digite o nome da tabela: ')
