@@ -7,46 +7,51 @@ import criacao_do_banco
 # pensei em utilizar o kwargs** para deixar o código mais flexível na mudança de informações do banco
 
 
-def UpdateAttribute(): #AttributeType, NewAttributeValue, EntityID):
+def UpdateAttribute(): 
 
     TableName = input('Digite o nome da tabela: ')
     ID_AttributteName = input('Qual o nome do atributo de ID? ')
     AttributeName = input('Digite o atributo da tabela {TableName} escolhido: ')
     NewAttributeValue = input("Digite qual o valor do atributo que você quer atualizar: ")
     Row_ID = input('Qual o ID do usuário que você quer mudar? ')
-    #EntityID = input("Digite o ID da entidade (Nome da Tabela): ")
     
     con = sqlite3.connect("escola.db",timeout=10)
     cur = con.cursor()
     # Ativamos a checagem de Chave Estrangeira (obrigatório no SQLite)
     cur.execute("PRAGMA foreign_keys = ON;")
 
-    VariableForCondition1 = AttributeName in criacao_do_banco.possiveis_valores_atributos
-    VariableForCondition2 = TableName in criacao_do_banco.possiveis_valores_tabelas
-
-    if VariableForCondition1 and VariableForCondition2:
-        cur.execute(f"UPDATE {TableName} SET {AttributeName} = ? WHERE {ID_AttributteName} = ?", (NewAttributeValue, Row_ID))
-        if cur.rowcount == 0:
-            print(f"Erro: Nenhum/Nenhuma {TableName} encontrado com o ID num.: {Row_ID} informado.")
-        else:
-            con.commit()
-            print("Dado atualizado com sucesso!")
-        
-''' try:
-
-            cur.execute(query, ValuesOfKwargsDict)
-            print(f"Sucesso! Dados inseridos na tabela {TableName} (ID gerado: {cur.lastrowid})")
-            
-            # O rowcount nos diz quantas linhas o UPDATE afetou
-        except sqlite3.IntegrityError:
-            # Se tentar colocar um ID_curso que não existe na tabela Curso, cai aqui!
-            print(f"Erro: A entidade {TableName} com {EntityID} não existe no sistema.")
-            
-        finally:
-            con.close()
-    
+    cur.execute(f"UPDATE {TableName} SET {AttributeName} = ? WHERE {ID_AttributteName} = ?", (NewAttributeValue, Row_ID))
+    if cur.rowcount == 0:
+        print(f"Erro: Nenhum/Nenhuma {TableName} encontrado com o ID num.: {Row_ID} informado.")
     else:
-        print('Perigo! Risco de vulnerabilidade!')'''
+        con.commit()
+        print("Dado atualizado com sucesso!")
+        
+def SelectAttribute():
+
+    TableName = input('Qual o nome da tabela? ')
+    ColumnName = input('Digite o nome da coluna que deseja visualizar: ') 
+    IdColumnName = input(f'Qual o nome da coluna de ID da tabela {TableName}? ')
+    Row_ID = input(f'Qual o valor do {IdColumnName} que você quer buscar? ')
+
+    con = sqlite3.connect("escola.db",timeout=10)
+    cur = con.cursor()
+    # Ativamos a checagem de Chave Estrangeira (obrigatório no SQLite)
+    cur.execute("PRAGMA foreign_keys = ON;")
+
+    cur.execute(f"SELECT {ColumnName} FROM {TableName} WHERE {IdColumnName} = ?", (Row_ID,))
+    
+    resultado = cur.fetchone()
+
+    if resultado is None:
+        print(f"Aviso: Nenhum registro encontrado na tabela {TableName} com {IdColumnName} = {Row_ID}.")
+    else:
+        # O fetchone() sempre retorna uma tupla, ex: ('Matemática',). 
+        # Usamos [0] para pegar apenas a string limpa dentro da tupla.
+        valor_encontrado = resultado[0]
+        print(f"\n--- Resultado da Busca ---")
+        print(f"O valor de {ColumnName} é: {valor_encontrado}")
+        print("--------------------------\n")
 
 def FillingDictOfColumnsAndValues(TableName):
 
@@ -112,9 +117,6 @@ def ExecuteCLI_insert():
     print("\n--- Novo Cadastro ---")
     TableName = input("Digite o nome da Tabela para inserção: (Opções: 'Aluno', 'Contrato_de_Trabalho', 'Curso', 'Leciona', 'Professor', 'Prontuario_Academico': ").strip()
 
-    if TableName not in criacao_do_banco.possiveis_valores_tabelas:
-        raise ValueError('[!] Erro: A tabela "{TableName}" é inválida. Nenhum dado inserido para o comando INSERT')
-
     # essa função retorna o dicionário pronto
     CollectedData = FillingDictOfColumnsAndValues(TableName)
 
@@ -142,3 +144,29 @@ def GetColumnsLimit(TableName):
     # O número de colunas é o tamanho da lista.
     # Subtraímos 1 se a Chave Primária (ex: matricula_ID) for autoincremental e não precisar ser digitada.
     return len(colunas) - 1
+
+import sqlite3
+
+def DeleteRow():
+    print("\n--- Deletar Registro ---")
+    TableName = input('Qual o nome da tabela de onde deseja deletar? ')
+    
+    IdColumnName = input(f'Qual o nome da coluna de ID da tabela {TableName}? ')
+    Row_ID = input(f'Qual o valor do {IdColumnName} que você quer deletar? ')
+    
+    con = sqlite3.connect("escola.db", timeout=10)
+    cur = con.cursor()
+    
+    cur.execute("PRAGMA foreign_keys = ON;")
+
+    cur.execute(f"DELETE FROM {TableName} WHERE {IdColumnName} = ?", (Row_ID,))
+    
+    # Verifica se alguma linha foi realmente afetada
+    if cur.rowcount == 0:
+        print(f"Aviso: Nenhum registro encontrado na tabela {TableName} com {IdColumnName} = {Row_ID}.")
+        con.close()
+    else:
+        # Se deletou, confirmamos a alteração no banco
+        con.commit()
+        print(f"Sucesso: Registro com {IdColumnName} = {Row_ID} foi deletado da tabela {TableName}.")
+        con.close()

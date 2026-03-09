@@ -17,14 +17,13 @@ match InitialInput:
         comandos_tabela_aluno.UpdateAttribute()
 
     case '3':
-        print('DELETE')
         ReceivedInput = 'DELETE'
         print(f'COMANDO SELECIONADO: \n {ReceivedInput}')
+        comandos_tabela_aluno.DeleteRow()
 
     case '4':
-        print('SELECT')
         ReceivedInput = 'SELECT'
         print(f'COMANDO SELECIONADO: \n {ReceivedInput}')
-
+        comandos_tabela_aluno.SelectAttribute()
     case _:
         print("No COMMANDS match")
